@@ -5,12 +5,36 @@ import '../models/user_model.dart';
 
 class AuthService extends ChangeNotifier {
   final ApiService _apiService;
+  ApiService? _sharedApiService; // Reference to the Provider's ApiService
   User? _user;
   bool _isAuthenticated = false;
   bool _isLoading = false;
 
-  AuthService() : _apiService = ApiService() {
+  AuthService({ApiService? sharedApiService}) 
+      : _apiService = ApiService(),
+        _sharedApiService = sharedApiService {
     _loadAuthState();
+  }
+
+  // Method to set the shared ApiService instance (called from main.dart)
+  void setSharedApiService(ApiService apiService) {
+    _sharedApiService = apiService;
+    // Sync token if we already have one
+    if (_apiService.token != null) {
+      _sharedApiService?.setToken(_apiService.token);
+    }
+    // Also sync from SharedPreferences in case token was loaded asynchronously
+    _syncTokenFromStorage();
+  }
+
+  // Helper method to sync token from storage to shared ApiService
+  Future<void> _syncTokenFromStorage() async {
+    if (_sharedApiService == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    if (token != null && _sharedApiService?.token != token) {
+      _sharedApiService?.setToken(token);
+    }
   }
 
   User? get user => _user;
@@ -27,6 +51,7 @@ class AuthService extends ChangeNotifier {
       
       if (token != null) {
         _apiService.setToken(token);
+        _sharedApiService?.setToken(token); // Also set token on Provider's instance
         _user = await _apiService.getProfile();
         _isAuthenticated = true;
       }
@@ -34,6 +59,8 @@ class AuthService extends ChangeNotifier {
       await _clearAuthState();
     } finally {
       _isLoading = false;
+      // Ensure token is synced to shared ApiService (in case it was set up after _loadAuthState started)
+      await _syncTokenFromStorage();
       notifyListeners();
     }
   }
@@ -52,6 +79,7 @@ class AuthService extends ChangeNotifier {
       
       await _saveAuthToken(token);
       _apiService.setToken(token);
+      _sharedApiService?.setToken(token); // Also set token on Provider's instance
       _user = await _apiService.getProfile();
       _isAuthenticated = true;
       
@@ -77,6 +105,7 @@ class AuthService extends ChangeNotifier {
       
       await _saveAuthToken(token);
       _apiService.setToken(token);
+      _sharedApiService?.setToken(token); // Also set token on Provider's instance
       _user = await _apiService.getProfile();
       _isAuthenticated = true;
       
@@ -96,6 +125,7 @@ class AuthService extends ChangeNotifier {
     _user = null;
     _isAuthenticated = false;
     _apiService.setToken(null);
+    _sharedApiService?.setToken(null); // Also clear token on Provider's instance
     notifyListeners();
   }
 

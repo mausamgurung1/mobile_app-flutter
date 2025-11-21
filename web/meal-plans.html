@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition App - Meal Plans</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h2>🍎 Nutrition App</h2>
+            </div>
+            <div class="nav-menu">
+                <a href="/dashboard.html" class="nav-link">Dashboard</a>
+                <a href="/meal-plans.html" class="nav-link active">Meal Plans</a>
+                <a href="#" id="logoutBtn" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>Meal Plans</h1>
+            <p>Generate personalized meal plans based on your goals</p>
+        </div>
+        
+        <div class="action-bar">
+            <button class="btn btn-primary" id="generateMealPlanBtn">
+                ➕ Generate New Meal Plan
+            </button>
+            <button class="btn btn-secondary" id="refreshBtn">
+                🔄 Refresh
+            </button>
+        </div>
+        
+        <!-- Generate Meal Plan Modal -->
+        <div id="generateModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Generate Meal Plan</h2>
+                    <button class="modal-close" id="closeModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="generateForm">
+                        <div class="form-group">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" name="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">End Date</label>
+                            <input type="date" id="endDate" name="endDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="goal">Health Goal</label>
+                            <select id="goal" name="goal">
+                                <option value="">Use profile goal</option>
+                                <option value="weight_loss">Weight Loss</option>
+                                <option value="muscle_gain">Muscle Gain</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="diabetes_management">Diabetes Management</option>
+                            </select>
+                        </div>
+                        <div id="generateError" class="error-message"></div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" id="cancelGenerate">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                <span id="generateBtnText">Generate</span>
+                                <span id="generateBtnSpinner" class="spinner" style="display: none;"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mealPlansContainer" class="meal-plans-container">
+            <div class="loading-state">
+                <div class="spinner-large"></div>
+                <p>Loading meal plans...</p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="spinner-large"></div>
+    </div>
+    
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/meal-plans.js"></script>
+</body>
+</html>
+

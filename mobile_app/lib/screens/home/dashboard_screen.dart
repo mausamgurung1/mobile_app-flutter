@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:io' show Platform;
 import 'package:provider/provider.dart';
@@ -16,6 +17,7 @@ import '../../widgets/meal_card.dart';
 import '../../widgets/advanced_stats_card.dart';
 import '../../widgets/macro_distribution_chart.dart';
 import '../../widgets/trend_chart.dart';
+import '../../widgets/advanced_macro_trends_chart.dart';
 import '../../models/meal_model.dart';
 import 'package:intl/intl.dart';
 
@@ -230,6 +232,53 @@ class _DashboardHomeState extends State<DashboardHome> {
           ],
         ),
         actions: [
+          // Debug button to load dummy data (only in debug mode)
+          if (kDebugMode)
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.bug_report),
+              onSelected: (value) {
+                HapticFeedback.mediumImpact();
+                if (value == 'load_dummy') {
+                  trackingService.loadDummyData();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('✅ Dummy test data loaded!'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                } else if (value == 'clear_dummy') {
+                  trackingService.clearDummyData();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('🗑️ Dummy data cleared!'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'load_dummy',
+                  child: Row(
+                    children: [
+                      Icon(Icons.data_usage, size: 20),
+                      SizedBox(width: 8),
+                      Text('Load Dummy Data'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'clear_dummy',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete_outline, size: 20),
+                      SizedBox(width: 8),
+                      Text('Clear Dummy Data'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
@@ -305,9 +354,19 @@ class _DashboardHomeState extends State<DashboardHome> {
               _buildNutritionProgress(trackingService, targetNutrition),
               const SizedBox(height: 16),
 
-              // Weekly Trend Charts
-              if (trackingService.weeklyNutrition.isNotEmpty) ...[
-                _buildTrendCharts(trackingService),
+              // Advanced Macronutrient Trends Chart
+              if (trackingService.weeklyNutrition.isNotEmpty || trackingService.todayNutrition != null) ...[
+                ChangeNotifierProvider.value(
+                  value: trackingService,
+                  child: Consumer<TrackingService>(
+                    builder: (context, service, _) {
+                      return AdvancedMacroTrendsChart(
+                        weeklyData: service.weeklyNutrition,
+                        todayNutrition: service.todayNutrition,
+                      );
+                    },
+                  ),
+                ),
                 const SizedBox(height: 16),
               ],
 

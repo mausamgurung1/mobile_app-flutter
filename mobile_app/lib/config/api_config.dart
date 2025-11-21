@@ -1,6 +1,8 @@
 class ApiConfig {
   // Update this with your backend URL
-  static const String baseUrl = 'http://localhost:8000/api/v1';
+  // For Android emulator, use 10.0.2.2 instead of localhost
+  // For physical device, use your computer's IP address
+  static const String baseUrl = 'http://10.0.2.2:8000/api/v1';
   
   // API Endpoints
   static const String login = '/auth/login';

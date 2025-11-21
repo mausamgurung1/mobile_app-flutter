@@ -15,8 +15,13 @@ class NutritionApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => ApiService()),
+        ChangeNotifierProxyProvider<ApiService, AuthService>(
+          create: (_) => AuthService(),
+          update: (_, apiService, previous) =>
+              previous ?? AuthService(sharedApiService: apiService)
+                ..setSharedApiService(apiService),
+        ),
       ],
       child: MaterialApp(
         title: 'Nutrition App',
@@ -33,7 +38,7 @@ class NutritionApp extends StatelessWidget {
             centerTitle: true,
             elevation: 0,
           ),
-          cardTheme: CardTheme(
+          cardTheme: CardThemeData(
             elevation: 2,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),

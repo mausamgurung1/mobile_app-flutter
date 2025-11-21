@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition App - Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h2>🍎 Nutrition App</h2>
+            </div>
+            <div class="nav-menu">
+                <a href="/dashboard.html" class="nav-link active">Dashboard</a>
+                <a href="/meal-plans.html" class="nav-link">Meal Plans</a>
+                <a href="#" id="logoutBtn" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>Welcome, <span id="userName">User</span>!</h1>
+            <p>Track your nutrition and achieve your health goals</p>
+        </div>
+        
+        <div class="dashboard-grid">
+            <!-- User Profile Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Your Profile</h3>
+                </div>
+                <div class="card-body">
+                    <div id="profileInfo" class="profile-info">
+                        <div class="info-item">
+                            <span class="info-label">Goal:</span>
+                            <span id="userGoal" class="info-value">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Age:</span>
+                            <span id="userAge" class="info-value">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Height:</span>
+                            <span id="userHeight" class="info-value">-</span> cm
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Weight:</span>
+                            <span id="userWeight" class="info-value">-</span> kg
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Activity Level:</span>
+                            <span id="userActivity" class="info-value">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Today's Nutrition Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Today's Nutrition</h3>
+                </div>
+                <div class="card-body">
+                    <div id="todayNutrition" class="nutrition-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Calories</div>
+                            <div class="stat-value">
+                                <span id="calories">0</span> / <span id="caloriesTarget">2000</span>
+                            </div>
+                            <div class="stat-bar">
+                                <div class="stat-progress" id="caloriesProgress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Protein</div>
+                            <div class="stat-value">
+                                <span id="protein">0</span>g / <span id="proteinTarget">150</span>g
+                            </div>
+                            <div class="stat-bar">
+                                <div class="stat-progress" id="proteinProgress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Carbs</div>
+                            <div class="stat-value">
+                                <span id="carbs">0</span>g / <span id="carbsTarget">250</span>g
+                            </div>
+                            <div class="stat-bar">
+                                <div class="stat-progress" id="carbsProgress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Fat</div>
+                            <div class="stat-value">
+                                <span id="fat">0</span>g / <span id="fatTarget">65</span>g
+                            </div>
+                            <div class="stat-bar">
+                                <div class="stat-progress" id="fatProgress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Today's Meals Card -->
+            <div class="card card-full">
+                <div class="card-header">
+                    <h3>Today's Meals</h3>
+                    <button class="btn btn-sm btn-primary" onclick="window.location.href='/meal-plans.html'">
+                        View Meal Plans
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="todayMeals" class="meals-list">
+                        <div class="empty-state">
+                            <p>No meals logged today</p>
+                            <button class="btn btn-primary" onclick="window.location.href='meal-plans.html'">
+                                Generate Meal Plan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="spinner-large"></div>
+    </div>
+    
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
+

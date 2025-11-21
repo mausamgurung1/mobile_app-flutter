@@ -52,6 +52,10 @@ class TrendChart extends StatelessWidget {
         .map((e) => _getValue(e.value))
         .reduce((a, b) => a < b ? a : b);
 
+    // Calculate horizontal interval, ensuring it's never zero
+    final valueRange = maxValue - minValue;
+    final horizontalInterval = valueRange > 0 ? valueRange / 5 : (maxValue > 0 ? maxValue / 5 : 1.0);
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -104,7 +108,7 @@ class TrendChart extends StatelessWidget {
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
-                  horizontalInterval: (maxValue - minValue) / 5,
+                  horizontalInterval: horizontalInterval,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
                       color: Colors.grey[200]!,

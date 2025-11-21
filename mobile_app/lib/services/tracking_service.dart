@@ -221,5 +221,99 @@ class TrackingService extends ChangeNotifier {
     if (targetValue == 0) return 0.0;
     return (currentValue / targetValue).clamp(0.0, 1.5); // Allow up to 150% for visualization
   }
+
+  // Generate dummy test data for macronutrient trends chart
+  void loadDummyData() {
+    final now = DateTime.now();
+    
+    // Generate today's nutrition data
+    _todayNutrition = NutritionInfo(
+      calories: 1850.0,
+      protein: 120.0,
+      carbohydrates: 180.0,
+      fat: 65.0,
+      fiber: 25.0,
+    );
+
+    // Generate data for last 30 days (covers week and month views)
+    _weeklyNutrition = {};
+    
+    // Realistic macronutrient values with trends (matching the chart image)
+    // Week 1-5 data pattern
+    final carbsPattern = [
+      // Week 1
+      50.0, 25.0, 115.0, 145.0, 45.0,
+      // Week 2  
+      90.0, 70.0, 110.0, 130.0, 60.0,
+      // Week 3
+      85.0, 95.0, 120.0, 140.0, 55.0,
+      // Week 4
+      75.0, 100.0, 125.0, 135.0, 65.0,
+      // Week 5
+      80.0, 105.0, 115.0, 150.0, 50.0,
+    ];
+    
+    final proteinPattern = [
+      // Week 1
+      15.0, 5.0, 95.0, 25.0, 15.0,
+      // Week 2
+      60.0, 45.0, 70.0, 85.0, 20.0,
+      // Week 3
+      55.0, 65.0, 80.0, 90.0, 18.0,
+      // Week 4
+      50.0, 75.0, 88.0, 92.0, 22.0,
+      // Week 5
+      58.0, 68.0, 85.0, 95.0, 16.0,
+    ];
+    
+    final fatPattern = [
+      // Week 1
+      30.0, 5.0, 40.0, 30.0, 40.0,
+      // Week 2
+      35.0, 28.0, 38.0, 42.0, 25.0,
+      // Week 3
+      32.0, 30.0, 40.0, 45.0, 22.0,
+      // Week 4
+      28.0, 35.0, 43.0, 38.0, 26.0,
+      // Week 5
+      34.0, 36.0, 40.0, 42.0, 24.0,
+    ];
+
+    // Generate 30 days of data
+    for (int i = 0; i < 30; i++) {
+      final date = now.subtract(Duration(days: 29 - i));
+      final dayDate = DateTime(date.year, date.month, date.day);
+      
+      final carbs = carbsPattern[i % carbsPattern.length];
+      final protein = proteinPattern[i % proteinPattern.length];
+      final fat = fatPattern[i % fatPattern.length];
+      
+      _weeklyNutrition[dayDate] = NutritionInfo(
+        calories: (carbs * 4) + (protein * 4) + (fat * 9),
+        protein: protein,
+        carbohydrates: carbs,
+        fat: fat,
+        fiber: 18.0 + (i * 0.25),
+      );
+    }
+
+    // Set some water intake
+    _waterIntake = 1500.0;
+
+    notifyListeners();
+    debugPrint('✅ Dummy test data loaded successfully!');
+    debugPrint('   - Today nutrition: ${_todayNutrition?.calories} kcal');
+    debugPrint('   - Weekly data: ${_weeklyNutrition.length} days');
+  }
+
+  // Clear dummy data and reset to empty
+  void clearDummyData() {
+    _todayNutrition = null;
+    _weeklyNutrition = {};
+    _waterIntake = 0.0;
+    _todayMeals = [];
+    notifyListeners();
+    debugPrint('🗑️ Dummy test data cleared!');
+  }
 }
 

@@ -172,6 +172,9 @@ class WeeklyCaloriesChart extends StatelessWidget {
         .map((n) => n.calories)
         .reduce((a, b) => a > b ? a : b);
 
+    // Calculate horizontal interval, ensuring it's never zero
+    final horizontalInterval = maxCalories > 0 ? maxCalories / 5 : 1.0;
+
     return Container(
       height: 250,
       padding: const EdgeInsets.all(16),
@@ -204,7 +207,7 @@ class WeeklyCaloriesChart extends StatelessWidget {
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
-                  horizontalInterval: maxCalories / 5,
+                  horizontalInterval: horizontalInterval,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
                       color: Colors.grey[200]!,
