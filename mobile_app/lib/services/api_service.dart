@@ -154,6 +154,15 @@ class ApiService extends ChangeNotifier {
     return NutritionInfo.fromJson((response as Map<String, dynamic>)['data'] as Map<String, dynamic>);
   }
 
+  // Create a single meal
+  Future<Meal> createMeal(Map<String, dynamic> mealData) async {
+    final response = await _request('POST', '${ApiConfig.mealPlans}/meals', body: mealData);
+    if (response is Map<String, dynamic>) {
+      return Meal.fromJson(response);
+    }
+    return Meal.fromJson((response as Map<String, dynamic>)['data'] as Map<String, dynamic>);
+  }
+
   // Recommendations
   Future<List<Meal>> getRecommendations({
     required String mealType,

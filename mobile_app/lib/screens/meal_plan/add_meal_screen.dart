@@ -67,26 +67,37 @@ class _AddMealScreenState extends State<AddMealScreen> {
       // Analyze nutrition
       final nutrition = await apiService.analyzeNutrition(_foodItems);
 
-      // Create meal data
+      // Create meal data - use FoodItem.toJson() but remove id and nutrition (backend calculates it)
       final mealData = {
         'name': _nameController.text.trim(),
-        'description': _descriptionController.text.trim(),
+        'description': _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
         'meal_type': _selectedMealType,
         'date': _selectedDate.toIso8601String(),
-        'foods': _foodItems.map((f) => f.toJson()).toList(),
+        'foods': _foodItems.map((f) => {
+          'name': f.name,
+          'quantity': f.quantity,
+          'unit': f.unit ?? 'g',
+        }).toList(),
         'nutrition': nutrition.toJson(),
       };
 
-      // TODO: Save meal to backend
-      // For now, just show success message
+      // Save meal to backend
+      await apiService.createMeal(mealData);
+
+      // Refresh tracking service to update today's progress
+      final trackingService = Provider.of<TrackingService>(context, listen: false);
+      await trackingService.loadTodayMeals();
+      await trackingService.loadWeeklyNutrition();
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Meal saved successfully!'),
+            content: Text('✅ Meal saved successfully!'),
             backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
           ),
         );
-        Navigator.pop(context);
+        Navigator.pop(context, true); // Return true to indicate success
       }
     } catch (e) {
       if (mounted) {

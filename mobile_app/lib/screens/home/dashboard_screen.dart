@@ -68,14 +68,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
       // Home tab - Log Meal button
       return FloatingActionButton.extended(
         heroTag: "fab_home",
-        onPressed: () {
+        onPressed: () async {
           HapticFeedback.mediumImpact();
-          Navigator.push(
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) => const AddMealScreen(),
             ),
           );
+          // Refresh data if meal was saved
+          if (result == true) {
+            final authService = Provider.of<AuthService>(context, listen: false);
+            if (authService.isAuthenticated) {
+              await _trackingService.loadTodayMeals();
+              await _trackingService.loadWeeklyNutrition();
+            }
+          }
         },
         icon: const Icon(Icons.add),
         label: const Text('Log Meal'),
@@ -238,12 +246,57 @@ class _DashboardHomeState extends State<DashboardHome> {
               icon: const Icon(Icons.bug_report),
               onSelected: (value) {
                 HapticFeedback.mediumImpact();
+                final targetNutrition = trackingService.getTargetNutrition(user);
+                final targetCalories = targetNutrition?.calories ?? 2000.0;
+                
                 if (value == 'load_dummy') {
                   trackingService.loadDummyData();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('✅ Dummy test data loaded!'),
                       duration: Duration(seconds: 2),
+                    ),
+                  );
+                } else if (value == 'set_progress_0') {
+                  trackingService.setTodayNutrition(calories: 0.0);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('📊 Progress set to 0%'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                } else if (value == 'set_progress_50') {
+                  final calories = targetCalories * 0.5;
+                  final protein = (targetNutrition?.protein ?? 150.0) * 0.5;
+                  final carbs = (targetNutrition?.carbohydrates ?? 225.0) * 0.5;
+                  final fat = (targetNutrition?.fat ?? 67.0) * 0.5;
+                  trackingService.setTodayNutrition(
+                    calories: calories,
+                    protein: protein,
+                    carbs: carbs,
+                    fat: fat,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('📊 Progress set to 50% (${calories.toStringAsFixed(0)} kcal)'),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                } else if (value == 'set_progress_100') {
+                  final calories = targetCalories;
+                  final protein = targetNutrition?.protein ?? 150.0;
+                  final carbs = targetNutrition?.carbohydrates ?? 225.0;
+                  final fat = targetNutrition?.fat ?? 67.0;
+                  trackingService.setTodayNutrition(
+                    calories: calories,
+                    protein: protein,
+                    carbs: carbs,
+                    fat: fat,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('📊 Progress set to 100% (${calories.toStringAsFixed(0)} kcal)'),
+                      duration: const Duration(seconds: 2),
                     ),
                   );
                 } else if (value == 'clear_dummy') {
@@ -264,6 +317,36 @@ class _DashboardHomeState extends State<DashboardHome> {
                       Icon(Icons.data_usage, size: 20),
                       SizedBox(width: 8),
                       Text('Load Dummy Data'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'set_progress_0',
+                  child: Row(
+                    children: [
+                      Icon(Icons.exposure_zero, size: 20),
+                      SizedBox(width: 8),
+                      Text('Set Progress: 0%'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'set_progress_50',
+                  child: Row(
+                    children: [
+                      Icon(Icons.exposure_plus_1, size: 20),
+                      SizedBox(width: 8),
+                      Text('Set Progress: 50%'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'set_progress_100',
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle, size: 20),
+                      SizedBox(width: 8),
+                      Text('Set Progress: 100%'),
                     ],
                   ),
                 ),

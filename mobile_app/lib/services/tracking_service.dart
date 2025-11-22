@@ -226,14 +226,24 @@ class TrackingService extends ChangeNotifier {
   void loadDummyData() {
     final now = DateTime.now();
     
-    // Generate today's nutrition data
+    // Generate today's nutrition data (matching the image: 0 calories initially, but can be set to test)
+    // For testing, you can set this to any value to see progress
     _todayNutrition = NutritionInfo(
-      calories: 1850.0,
-      protein: 120.0,
-      carbohydrates: 180.0,
-      fat: 65.0,
-      fiber: 25.0,
+      calories: 0.0, // Start at 0 like in the image, or change to test progress
+      protein: 0.0,
+      carbohydrates: 0.0,
+      fat: 0.0,
+      fiber: 0.0,
     );
+    
+    // You can also set it to show progress:
+    // _todayNutrition = NutritionInfo(
+    //   calories: 1200.0, // Example: 60% of 2000 kcal
+    //   protein: 80.0,
+    //   carbohydrates: 150.0,
+    //   fat: 40.0,
+    //   fiber: 20.0,
+    // );
 
     // Generate data for last 30 days (covers week and month views)
     _weeklyNutrition = {};
@@ -314,6 +324,25 @@ class TrackingService extends ChangeNotifier {
     _todayMeals = [];
     notifyListeners();
     debugPrint('🗑️ Dummy test data cleared!');
+  }
+
+  // Set today's nutrition for testing (useful for testing progress display)
+  void setTodayNutrition({
+    double? calories,
+    double? protein,
+    double? carbs,
+    double? fat,
+    double? fiber,
+  }) {
+    _todayNutrition = NutritionInfo(
+      calories: calories ?? _todayNutrition?.calories ?? 0.0,
+      protein: protein ?? _todayNutrition?.protein ?? 0.0,
+      carbohydrates: carbs ?? _todayNutrition?.carbohydrates ?? 0.0,
+      fat: fat ?? _todayNutrition?.fat ?? 0.0,
+      fiber: fiber ?? _todayNutrition?.fiber ?? 0.0,
+    );
+    notifyListeners();
+    debugPrint('📊 Today\'s nutrition updated: ${_todayNutrition?.calories} kcal');
   }
 }
 

@@ -7,7 +7,7 @@ from app.models.user import User
 from app.models.meal_plan import MealPlan
 from app.models.meal import Meal, FoodItem
 from app.schemas.meal_plan import MealPlanCreate, MealPlanResponse
-from app.schemas.meal import MealResponse, FoodItemResponse, NutritionInfoSchema
+from app.schemas.meal import MealResponse, FoodItemResponse, NutritionInfoSchema, MealCreate
 from app.api.auth import get_current_user
 from app.services.recommendation_service import RecommendationService
 
@@ -286,4 +286,64 @@ async def generate_meal_plan(
         goal=db_meal_plan.goal,
         created_at=db_meal_plan.created_at,
     )
+
+@router.post("/meals", response_model=MealResponse, status_code=status.HTTP_201_CREATED)
+async def create_meal(
+    meal_data: MealCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Create a single meal and associate it with a meal plan for that date.
+    If no meal plan exists for the date, one will be created automatically.
+    """
+    # Check if meal plan exists for this date
+    meal_date_start = meal_data.date.replace(hour=0, minute=0, second=0, microsecond=0)
+    meal_date_end = meal_data.date.replace(hour=23, minute=59, second=59, microsecond=999999)
+    
+    meal_plan = db.query(MealPlan).filter(
+        MealPlan.user_id == current_user.id,
+        MealPlan.start_date <= meal_data.date,
+        MealPlan.end_date >= meal_data.date
+    ).first()
+    
+    # Create meal plan if it doesn't exist
+    if not meal_plan:
+        meal_plan = MealPlan(
+            user_id=current_user.id,
+            start_date=meal_date_start,
+            end_date=meal_date_end,
+            goal=current_user.health_goal,
+        )
+        db.add(meal_plan)
+        db.flush()
+    
+    # Create meal
+    db_meal = Meal(
+        user_id=current_user.id,
+        name=meal_data.name,
+        description=meal_data.description,
+        meal_type=meal_data.meal_type,
+        date=meal_data.date,
+        nutrition_info=meal_data.nutrition.dict() if meal_data.nutrition else None,
+    )
+    db.add(db_meal)
+    db.flush()  # Get meal ID
+    
+    # Create food items
+    for food_item in meal_data.foods:
+        food_nutrition = food_item.nutrition
+        db_food_item = FoodItem(
+            meal_id=db_meal.id,
+            name=food_item.name,
+            quantity=food_item.quantity,
+            unit=food_item.unit,
+            nutrition_info=food_nutrition.dict() if food_nutrition else None,
+        )
+        db.add(db_food_item)
+    
+    db.commit()
+    db.refresh(db_meal)
+    
+    return _meal_to_response(db_meal)
 

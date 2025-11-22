@@ -26,14 +26,17 @@ class AdvancedStatsCard extends StatelessWidget {
     final targetCalories = targetNutrition?.calories ?? 2000.0;
     final progress = targetCalories > 0 ? (calories / targetCalories).clamp(0.0, 1.0) : 0.0;
 
+    // Use green color scheme to match the design
+    final cardColor = Colors.green[600] ?? const Color(0xFF4CAF50);
+    
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).primaryColor,
-            Theme.of(context).primaryColor.withOpacity(0.7),
+            cardColor,
+            cardColor.withOpacity(0.8),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -41,7 +44,7 @@ class AdvancedStatsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).primaryColor.withOpacity(0.3),
+            color: cardColor.withOpacity(0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -135,21 +138,22 @@ class AdvancedStatsCard extends StatelessWidget {
                 ),
             ],
           ),
-          if (bmi != null || weightChange != null) ...[
+          // Always show BMI if available, or show a placeholder for testing
+          if (bmi != null) ...[
             const SizedBox(height: 20),
             const Divider(color: Colors.white30),
             const SizedBox(height: 12),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (bmi != null)
-                  _buildStatItem(
-                    'BMI',
-                    bmi.toStringAsFixed(1),
-                    _getBMICategory(bmi),
-                    Icons.monitor_weight,
-                  ),
-                if (weightChange != null)
+                _buildStatItem(
+                  'BMI',
+                  bmi.toStringAsFixed(1),
+                  _getBMICategory(bmi),
+                  Icons.monitor_weight_outlined,
+                ),
+                if (weightChange != null) ...[
+                  const SizedBox(width: 40),
                   _buildStatItem(
                     'Weight',
                     weightChange! > 0 ? '+${weightChange!.toStringAsFixed(1)}' : weightChange!.toStringAsFixed(1),
@@ -157,6 +161,7 @@ class AdvancedStatsCard extends StatelessWidget {
                     Icons.trending_up,
                     color: weightChange! > 0 ? Colors.red[300] : Colors.green[300],
                   ),
+                ],
               ],
             ),
           ],

@@ -159,6 +159,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                   },
                 ),
+                const SizedBox(height: 16),
+                // Quick Login Button for Testing
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    _emailController.text = 'admin@gmail.com';
+                    _passwordController.text = 'admin!@#';
+                    await _handleLogin();
+                  },
+                  icon: const Icon(Icons.flash_on, size: 18),
+                  label: const Text('Quick Login (Admin)'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
